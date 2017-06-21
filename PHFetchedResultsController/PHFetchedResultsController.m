@@ -26,12 +26,12 @@
 @property (nonatomic, readonly) NSInteger day;
 @property (nonatomic, readonly) NSInteger hour;
 @property (nonatomic, readonly) PHFetchOptions *options;
-@property (nonatomic, readonly) PHAssetCollection *assetCollection;
+@property (nonatomic, readonly) PHAssetCollection * _Nullable assetCollection;
 @property (nonatomic, readonly) NSDateComponents *dateComponents;
 @property (nonatomic, readwrite) NSUInteger numberOfObjects;
 @property (nonatomic, weak) id <PHFetchedResultsSectionInfoDelegate> delegate;
 
-- (instancetype)initWithAssetCollection:(PHAssetCollection *)assetCollection
+- (instancetype)initWithAssetCollection:(nullable PHAssetCollection *)assetCollection
                                    date:(NSDate *)date
                                 options:(PHFetchOptions *)options;
 
@@ -42,7 +42,7 @@
     NSUInteger _numberOfObjects;
 }
 
-- (instancetype)initWithAssetCollection:(PHAssetCollection *)assetCollection
+- (instancetype)initWithAssetCollection:(nullable PHAssetCollection *)assetCollection
                                    date:(NSDate *)date
                                 options:(PHFetchOptions *)options
 {
@@ -196,7 +196,13 @@
         newPredicate = [NSCompoundPredicate andPredicateWithSubpredicates:@[datePredicate]];
     }
     options.predicate = newPredicate;
-    PHFetchResult <PHAsset *>*result = [PHAsset fetchAssetsInAssetCollection:self.assetCollection options:options];
+    PHFetchResult <PHAsset *>*result;
+    if (self.assetCollection) {
+        result = [PHAsset fetchAssetsInAssetCollection:self.assetCollection options:options];
+    } else {
+        options.includeAssetSourceTypes = PHAssetSourceTypeCloudShared | PHAssetSourceTypeUserLibrary | PHAssetSourceTypeiTunesSynced;
+        result = [PHAsset fetchAssetsWithMediaType:PHAssetMediaTypeImage options:options];
+    }
     [cache setObject:result forKey:name];
     
     return result;
@@ -346,7 +352,7 @@
     _PHFetchTask *_runningTask;
 }
 
-- (instancetype)initWithAssetCollection:(PHAssetCollection *)assetCollection sectionKey:(PHFetchedResultsSectionKey)sectionKey mediaType:(PHFetchedResultsMediaType)mediaType ignoreLocalIDs:(NSArray <NSString *>*)ignoreLocalIDs
+- (instancetype)initWithAssetCollection:(nullable PHAssetCollection *)assetCollection sectionKey:(PHFetchedResultsSectionKey)sectionKey mediaType:(PHFetchedResultsMediaType)mediaType ignoreLocalIDs:(NSArray <NSString *>*)ignoreLocalIDs
 {
     self = [super init];
     if (self) {
@@ -411,7 +417,12 @@
     }
     _options.predicate = [NSCompoundPredicate andPredicateWithSubpredicates:@[_options.predicate, predicate]];
     _options.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:NO]];
-    self.fetchResult = [PHAsset fetchAssetsInAssetCollection:_assetCollection options:_options];
+    if (_assetCollection) {
+        self.fetchResult = [PHAsset fetchAssetsInAssetCollection:_assetCollection options:_options];
+    } else {
+        _options.includeAssetSourceTypes = PHAssetSourceTypeCloudShared | PHAssetSourceTypeUserLibrary | PHAssetSourceTypeiTunesSynced;
+        self.fetchResult = [PHAsset fetchAssetsWithMediaType:PHAssetMediaTypeImage options:_options];
+    }
     return YES;
 }
 

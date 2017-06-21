@@ -34,14 +34,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface PHFetchedResultsController : NSObject
 
-- (instancetype)initWithAssetCollection:(PHAssetCollection *)assetCollection
+- (instancetype)initWithAssetCollection:(nullable PHAssetCollection *)assetCollection
                              sectionKey:(PHFetchedResultsSectionKey)sectionKey
                               mediaType:(PHFetchedResultsMediaType)mediaType
                          ignoreLocalIDs:(NSArray <NSString *>*)ignoreLocalIDs;
 
 - (BOOL)performFetch:(NSError **)error;
 
-@property (nonatomic, readonly) PHAssetCollection *assetCollection;
+@property (nonatomic, readonly) PHAssetCollection * _Nullable assetCollection;
 @property (nonatomic, readonly) PHFetchedResultsSectionKey sectionKey;
 @property (nonatomic, readonly) PHFetchedResultsMediaType mediaType;
 @property (nullable, nonatomic, readonly) NSString *cacheName;

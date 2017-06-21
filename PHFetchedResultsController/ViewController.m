@@ -87,10 +87,15 @@ static CGSize AssetGridThumbnailSize;
     if (_fetchedResultsController) {
         return _fetchedResultsController;
     }
-    PHFetchResult *assetCollections = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum
+    /*PHFetchResult *assetCollections = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum
                                                                                subtype:PHAssetCollectionSubtypeSmartAlbumUserLibrary
                                                                                options:nil];
-    PHAssetCollection *assetCollection = assetCollections.firstObject;
+    /PHAssetCollection *assetCollection = assetCollections.firstObject;*/
+    
+    PHFetchOptions *fetchOptions = [[PHFetchOptions alloc] init];
+    fetchOptions.includeAssetSourceTypes = PHAssetSourceTypeiTunesSynced | PHAssetSourceTypeUserLibrary | PHAssetSourceTypeCloudShared;
+    PHFetchResult * fetchResult = [PHAsset  fetchAssetsWithOptions:fetchOptions];
+    PHAssetCollection *assetCollection = [PHAssetCollection transientAssetCollectionWithAssetFetchResult:fetchResult title:nil];
     
     _fetchedResultsController = [[PHFetchedResultsController alloc] initWithAssetCollection:assetCollection sectionKey:PHFetchedResultsSectionKeyWeek mediaType:PHFetchedResultsMediaTypeImage ignoreLocalIDs:@[]];
     _fetchedResultsController.delegate = self;
